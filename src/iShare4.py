@@ -6,7 +6,7 @@ class Interface:
     def buddies_names() -> list:
         """Receives names of participants separated with comma.
         Returns list of names capitalized and cleared from whitespaces"""
-        buddies = str(input(lang.dialogue[0]))
+        buddies = str(input(lang.dialogue["ask names"]))
         buddies = [
             x.strip().title() for x in buddies.split(',')
             if x.isspace() is False and x != ''
@@ -18,7 +18,7 @@ class Interface:
         """Receives the total amount. Returns the total as a float"""
         while True:
             try:
-                total = float(input(lang.dialogue[1]))
+                total = float(input(lang.dialogue["ask sum"]))
             except ValueError:
                 continue
             else:
@@ -34,14 +34,14 @@ class Interface:
         for buddy in buddies:
             while True:
                 try:
-                    share = float(input(lang.dialogue[2].format(buddy)))
+                    share = float(input(lang.dialogue["ask amount paid"].format(buddy)))
                 except ValueError:
                     continue
                 if share < 0:
-                    print("\n{}\n".format(lang.alert[2]))
+                    print("\n{}\n".format(lang.alert["negative share"]))
                     continue
                 if total_control + share > total:
-                    print("\n{}\n".format(lang.alert[3]))
+                    print("\n{}\n".format(lang.alert["exceeding share"]))
                     continue
                 else:
                     total_control += share
@@ -59,21 +59,21 @@ def controller():
         if buddies is not None:
             break
         else:
-            print("\n{}\n".format(lang.alert[0]))
+            print("\n{}\n".format(lang.alert["no participants"]))
 
     while True:
         total = Interface.total()
         if total is not None:
             break
         else:
-            print("\n{}\n".format(lang.alert[1]))
+            print("\n{}\n".format(lang.alert["wrong total"]))
 
     while True:
         buddies_shares = Interface.buddies_shares(buddies, total)
         if buddies_shares is not None:
             break
         else:
-            print("\n{}\n".format(lang.alert[4]))
+            print("\n{}\n".format(lang.alert["inconsistent share"]))
     print(main(buddies_shares, total))
 
 
@@ -114,13 +114,13 @@ def main(buddies_shares, total):
                 debtor[1] -= lender[1]
                 break
     if len(guys_who_pay) == len(guys_who_get) == 0:
-        return lang.message[0].format(equal_share)
+        return lang.message["equal contribution"].format(equal_share)
 
     results_rounded = [[x[0], round(x[1], 2), x[2]] for x in results_container]
 
-    output = lang.message[1].format(round(equal_share, 2))
+    output = lang.message["equal share"].format(round(equal_share, 2))
     for debtor, cash, lender in results_rounded:
-        line = lang.message[2].format(debtor, cash, lender)
+        line = lang.message["transaction"].format(debtor, cash, lender)
         output += "\n{}".format("".join(line))
     return output
 
