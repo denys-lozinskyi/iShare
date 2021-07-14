@@ -1,17 +1,21 @@
+from typing import List, Dict
 from src.languages import ENG as lang
 # import language of the app interface (English is set by default)
 
 
 class Interface:
     """
-    contains a set of functions responsible for receiving data from the user
+       A set of functions responsible for receiving data from the user
     """
 
     @staticmethod
     def buddies_names() -> list:
-        """Receives names of participants separated with comma.
-        Returns list of names capitalized and cleared from whitespaces"""
-        buddies = str(input(lang.dialogue["ask names"]))
+        """
+        Receives names of participants separated with comma from the user.
+          :return list: names of participants capitalized and cleared from whitespaces.
+                  If qty of names received from a user is <= 1, returns None
+        """
+        buddies = str(input(lang.dialogue['ask names']))
         buddies = [
             x.strip().title() for x in buddies.split(',')
             if x.isspace() is False and x != ''
@@ -19,113 +23,114 @@ class Interface:
         return buddies if len(buddies) > 1 else None
 
     @staticmethod
-    def total() -> float:
-        """Receives the total amount. Returns the total as a float"""
-        while True:
-            try:
-                total = float(input(lang.dialogue["ask sum"]))
-            except ValueError:
-                continue
-            else:
-                break
-        return total if total > 0 else None
-
-    @staticmethod
-    def buddies_shares(buddies, total) -> list:
-        """Receives the participants' shares in the total given and the total.
-        Returns list of lists with pairs in the format [%1, %2], where %1 - name, and %2 - his share"""
-        total_control = 0
-        buddies_shares = []
+    def buddies_shares(buddies) -> dict:
+        """
+            Given a list of participants, one by one requests the user for amount of money
+            each of participants provided.
+              :return dict: with following fields:
+                        {'shares': [{participant_1's name (str): his share (float)},
+                                    {participant_2's name (str): his share (float)}]}
+        """
+        buddies_shares = {'shares': []}
         for buddy in buddies:
             while True:
                 try:
-                    share = float(input(lang.dialogue["ask amount paid"].format(buddy)))
+                    share = float(input(lang.dialogue['ask payment'].format(buddy)))
                 except ValueError:
                     continue
                 if share < 0:
-                    print("\n{}\n".format(lang.alert["negative share"]))
-                    continue
-                if total_control + share > total:
-                    print("\n{}\n".format(lang.alert["exceeding share"]))
+                    print("\n{}\n".format(lang.alert['negative share']))
                     continue
                 else:
-                    total_control += share
-                    buddies_shares.append([buddy, share])
+                    buddies_shares['shares'].append({'name': buddy, 'share': share})
                     break
-        return buddies_shares if total_control == total else None
+        # print(buddies_shares)
+        return buddies_shares
 
 
-def controller():
-    """One by one runs interface functions ensuring they all return proper data.
-    Then, with the data collected, runs the main module"""
-
+def controller() -> print:
+    """
+        One by one runs interface functions ensuring they all return proper data.
+        Then, with the data collected, runs the main module.
+        Prints out the result of shares calculation.
+    """
     while True:
-        buddies = Interface.buddies_names()
+        buddies: list = Interface.buddies_names()
         if buddies is not None:
             break
         else:
-            print("\n{}\n".format(lang.alert["no participants"]))
-
-    while True:
-        total = Interface.total()
-        if total is not None:
-            break
-        else:
-            print("\n{}\n".format(lang.alert["wrong total"]))
-
-    while True:
-        buddies_shares = Interface.buddies_shares(buddies, total)
-        if buddies_shares is not None:
-            break
-        else:
-            print("\n{}\n".format(lang.alert["inconsistent share"]))
-    print(main(buddies_shares, total))
+            print("\n{}\n".format(lang.alert['one participant']))
+    buddies_shares: dict = Interface.buddies_shares(buddies)
+    print(main(buddies_shares))
 
 
-def main(buddies_shares, total):
+def main(data) -> str:
     """
-    calculates and returns the result based on the arguments provided
+        Calculates and returns the result based on the arguments provided.
+          :param data: dict in a format:
+          :return: str: result of calculations
     """
-    guys_who_pay = []
-    guys_who_get = []
-    results_container = []
-    equal_share = (
-            total / len(buddies_shares)) if len(buddies_shares) > 0 else None
+    guys_who_pay: List[Dict] = []
+    guys_who_get: List[Dict] = []
+    results_container: List[List] = []
+    total: float = 0
 
-    for buddy in buddies_shares:
-        if buddy[1] == 0:
-            guys_who_pay.append([buddy[0], equal_share])
-        elif buddy[1] < equal_share:
-            guys_who_pay.append([buddy[0], equal_share - buddy[1]])
-        elif buddy[1] > equal_share:
-            guys_who_get.append([buddy[0], buddy[1] - equal_share])
-    guys_who_get = sorted(guys_who_get, key=lambda x: x[1], reverse=True)
-    guys_who_pay = sorted(guys_who_pay, key=lambda x: x[1], reverse=True)
+    # calculating the total sum based on shares
+    for buddy_share in data['shares']:
+        total += buddy_share['share']
+    # calculating an equal share number based on total
+    equal_share = total / len(data['shares'])
 
+    # forming out two lists of dicts in the following format: [{'name_1': name_1, 'sum': 'his sum'},
+    #                                                          {'name_2': name_2, 'sum': 'his sum'}]
+    # guys_who_pay list consists of participants' names, with a sum they have to pay to others to get equal.
+    # guys_who_get list consists of participants' names with a sum they are to get from others according the equal share
+    for buddy in data['shares']:
+        # if one contributed zero, he has to pay an equal share
+        if buddy['share'] == 0:
+            guys_who_pay.append({'name': buddy['name'], 'sum': equal_share})
+        # if one contributed less than an equal share, he has to pay the rest to the equal share
+        elif buddy['share'] < equal_share:
+            guys_who_pay.append({'name': buddy['name'], 'sum': equal_share - buddy['share']})
+        # if one contributed more than an equal share, he is to be paid the rest to the equal share
+        elif buddy['share'] > equal_share:
+            guys_who_get.append({'name': buddy['name'], 'sum': buddy['share'] - equal_share})
+
+    # if in the end of forming the lists they both appeared empty, it means every participant paid an equal share
+    # thus we return corresponding statement and quit.
+    if len(guys_who_pay) == len(guys_who_get) == 0:
+        return lang.message['total sum'].format(total) + lang.message['equal contribution'].format(equal_share)
+
+    # Otherwise we continue.
+    # We order (DESC) lists of dicts by the 'sum' key, so that participants with bigger sums be first in the lists.
+    # This aims to optimize sums that one will pay to another
+    guys_who_get = sorted(guys_who_get, key=lambda x: x['sum'], reverse=True)
+    guys_who_pay = sorted(guys_who_pay, key=lambda x: x['sum'], reverse=True)
+
+    # forming out output lines with data, by comparing the sum fields for every guy in the lists, and
+    # manipulating with the lists as we go.
     for lender in guys_who_get:
         for debtor in guys_who_pay:
-            if lender[1] == debtor[1]:
-                results_container.append([debtor[0], debtor[1], lender[0]])
+            if lender['sum'] == debtor['sum']:
+                results_container.append([debtor['name'], debtor['sum'], lender['name']])
                 guys_who_pay.remove(debtor)
                 break
-            elif lender[1] > debtor[1]:
-                results_container.append([debtor[0], debtor[1], lender[0]])
-                lender[1] -= debtor[1]
+            elif lender['sum'] > debtor['sum']:
+                results_container.append([debtor['name'], debtor['sum'], lender['name']])
+                lender['sum'] -= debtor['sum']
                 guys_who_get.append(lender)
                 guys_who_pay.remove(debtor)
                 break
-            elif lender[1] < debtor[1]:
-                results_container.append([debtor[0], lender[1], lender[0]])
-                debtor[1] -= lender[1]
+            elif lender['sum'] < debtor['sum']:
+                results_container.append([debtor['name'], lender['sum'], lender['name']])
+                debtor['sum'] -= lender['sum']
                 break
-    if len(guys_who_pay) == len(guys_who_get) == 0:
-        return lang.message["equal contribution"].format(equal_share)
 
     results_rounded = [[x[0], round(x[1], 2), x[2]] for x in results_container]
 
-    output = lang.message["equal share"].format(round(equal_share, 2))
+    output = lang.message['total sum'].format(total) + lang.message['equal share'].format(round(equal_share, 2))
     for debtor, cash, lender in results_rounded:
-        line = lang.message["transaction"].format(debtor, cash, lender)
+        line = lang.message['personal payment'].format(debtor, cash, lender)
         output += "\n{}".format("".join(line))
     return output
 

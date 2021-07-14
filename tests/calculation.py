@@ -2,82 +2,146 @@
 #  TESTING AREA  #
 ##################
 
+import sys
+from pathlib import Path
+
+file = Path(__file__).resolve()
+
+parent, root = file.parent, file.parents[1]
+sys.path.append(str(root))
+
+# Additionally remove the current file's directory from sys.path
+try:
+    sys.path.remove(str(parent))
+except ValueError:  # Already removed
+    pass
+
 from src.iShare4 import main
 
 
-def test_1():
-    data = ([["Den", 20], ["Fox", 40], ["Zoe", 0], ["Andy", 0], ["Bron", 40]],
-            100)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 20.00<<<\nZoe pays 20.00 to Fox\nAndy pays 20.00 to Bron"
+###########################################
+#     TESTS AGAINST the MAIN FUNCTION     #
+#   TO VERIFY COMPUTATION FUNCTIONALITY   #
+###########################################
+
+
+def scenario_1():
+    data = {
+        'shares': [
+            {'name': "Den", 'share': 20},
+            {'name': "Fox", 'share': 40},
+            {'name': "Zoe", 'share': 0},
+            {'name': "Andy", 'share': 0},
+            {'name': "Bron", 'share': 40}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 100 <<<\n>>> Equal share is 20.00 <<<\n\nZoe pays 20.00 to Fox\nAndy pays 20.00 to Bron", output
     return output
 
 
-def test_2():
-    data = ([["Den", 5], ["Fox", 0], ["Zoe", 15], ["Andy", 30], ["Bron", 50]],
-            100)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 20.00<<<\nFox pays 20.00 to Bron\nDen pays 10.00 to Andy\nDen pays 5.00 to " \
-                     "Bron\nZoe pays 5.00 to Bron"
+def scenario_2():
+    data = {
+        'shares': [
+            {'name': "Den", 'share': 5},
+            {'name': "Fox", 'share': 0},
+            {'name': "Zoe", 'share': 15},
+            {'name': "Andy", 'share': 30},
+            {'name': "Bron", 'share': 50}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 100 <<<\n>>> Equal share is 20.00 <<<\n\nFox pays 20.00 to Bron\nDen pays 10.00 to Andy\nDen pays 5.00 to Bron\nZoe pays 5.00 to Bron"
     return output
 
 
-def test_3():
-    data = ([["Den", 0], ["Fox", 85], ["Zoe", 0], ["Andy", 15], ["Bron", 0]],
-            100)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 20.00<<<\nDen pays 20.00 to Fox\nZoe pays 20.00 to Fox\nBron pays 20.00 to " \
-                     "Fox\nAndy pays 5.00 to Fox"
+def scenario_3():
+    data = {
+        'shares': [
+            {'name': "Den", 'share': 0},
+            {'name': "Fox", 'share': 85},
+            {'name': "Zoe", 'share': 0},
+            {'name': "Andy", 'share': 15},
+            {'name': "Bron", 'share': 0}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 100 <<<\n>>> Equal share is 20.00 <<<\n\nDen pays 20.00 to Fox\nZoe pays 20.00 to Fox\nBron pays 20.00 to Fox\nAndy pays 5.00 to Fox"
     return output
 
 
-def test_4():
-    data = ([["Harry", 0], ["Den", 180], ["Fox", 400], ["Chad", 23],
-             ["Elena", 900], ["July", 77]], 1580)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 263.33<<<\nHarry pays 263.33 to Elena\nChad pays 136.67 to Fox\nChad pays " \
-                     "103.67 to Elena\nJuly pays 186.33 to Elena\nDen pays 83.33 to Elena"
+def scenario_4():
+    data = {
+        'shares': [
+            {'name': 'Harry', 'share': 0},
+            {'name': 'Den', 'share': 180},
+            {'name': 'Fox', 'share': 400},
+            {'name': 'Chad', 'share': 23},
+            {'name': 'Elena', 'share': 900},
+            {'name': 'July', 'share': 77}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 1580 <<<\n>>> Equal share is 263.33 <<<\n\nHarry pays 263.33 to Elena\nChad pays 136.67 to Fox\nChad pays 103.67 to Elena\nJuly pays 186.33 to Elena\nDen pays 83.33 to Elena"
     return output
 
 
-def test_5():
-    data = ([["Den", 45], ["Fox", 0], ["Zoe", 75]], 120)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 40.00<<<\nFox pays 35.00 to Zoe\nFox pays 5.00 to Den"
+def scenario_5():
+    data = {
+        'shares': [
+            {'name': 'Den', 'share': 45},
+            {'name': 'Fox', 'share': 0},
+            {'name': 'Zoe', 'share': 75}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 120 <<<\n>>> Equal share is 40.00 <<<\n\nFox pays 35.00 to Zoe\nFox pays 5.00 to Den"
     return output
 
 
-def test_6():
-    data = ([["Ed", 1083.12], ["Den", 70], ["Artem", 600], ["Dasha", 0]],
-            1753.12)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 438.28<<<\nDasha pays 438.28 to Ed\nDen pays 161.72 to Artem\nDen pays " \
-                     "206.56 to Ed"
+def scenario_6():
+    data = {
+        'shares': [
+            {'name': 'Ed', 'share': 1083.12},
+            {'name': 'Den', 'share': 70},
+            {'name': 'Artem', 'share': 600},
+            {'name': 'Dasha', 'share': 0}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 1753.12 <<<\n>>> Equal share is 438.28 <<<\n\nDasha pays 438.28 to Ed\nDen pays 161.72 to Artem\nDen pays 206.56 to Ed"
     return output
 
 
-def test_7():
-    data = ([["Ed", 1000], ["Den", 1000], ["Artem", 1000], ["Dasha", 1000]],
-            4000)
-    output = main(*data)
-    assert output == "\nEveryone equally contributed with 1000.00 each"
+def scenario_7():
+    data = {
+        'shares': [
+            {'name': 'Ed', 'share': 1000},
+            {'name': 'Den', 'share': 1000},
+            {'name': 'Artem', 'share': 1000},
+            {'name': 'Dasha', 'share': 1000}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 4000 <<<\nEveryone equally contributed with 1000.00 each"
     return output
 
 
-def test_8():
-    data = ([["Елена", 187], ["Таня", 1500], ["Алекс", 400], ["Толя", 0],
-             ["Оля", 1000], ["Денис", 950], ["Вася", 1950]], 5987)
-    output = main(*data)
-    assert output == "\n>>>Equal share is 855.29<<<\nТоля pays 855.29 to Вася\nЕлена pays 644.71 to Таня\nЕлена pays " \
-                     "23.57 to Оля\nАлекс pays 94.71 to Денис\nАлекс pays 239.43 to Вася\nАлекс pays 121.14 to Оля"
+def scenario_8():
+    data = {
+        'shares': [
+            {'name': 'Елена', 'share': 187},
+            {'name': 'Таня', 'share': 1500},
+            {'name': 'Алекс', 'share': 400},
+            {'name': 'Толя', 'share': 0},
+            {'name': 'Оля', 'share': 1000},
+            {'name': 'Денис', 'share': 950},
+            {'name': 'Вася', 'share': 1950}]
+    }
+    output = main(data)
+    assert output == "\n>>> Total sum is 5987 <<<\n>>> Equal share is 855.29 <<<\n\nТоля pays 855.29 to Вася\nЕлена pays 644.71 to Таня\nЕлена pays 23.57 to Оля\nАлекс pays 94.71 to Денис\nАлекс pays 239.43 to Вася\nАлекс pays 121.14 to Оля"
     return output
 
 
-def runner():
-    for test_number in range(8):
-        test_name = "test_{}()".format(test_number + 1)
-        print(eval(test_name))
-
-
-if __name__ == "__main__":
-    runner()
+if __name__ == '__main__':
+    print(scenario_1())
+    print(scenario_2())
+    print(scenario_3())
+    print(scenario_4())
+    print(scenario_5())
+    print(scenario_6())
+    print(scenario_7())
+    print(scenario_8())
