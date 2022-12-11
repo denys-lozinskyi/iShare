@@ -1,5 +1,5 @@
 from typing import List, Dict
-from src.languages import ENG as lang
+from src.languages import eng as lang
 # import language of the app interface (English is set by default)
 
 
@@ -11,19 +11,16 @@ class Interface:
     @staticmethod
     def buddies_names() -> list:
         """
-        Receives names of participants separated with comma from the user.
-          :return list: names of participants capitalized and cleared from whitespaces.
+            Receives names of participants separated with comma from the user.
+              :return list: names of participants capitalized and cleared from whitespaces.
                   If qty of names received from a user is <= 1, returns None
         """
         buddies = str(input(lang.dialogue['ask names']))
-        buddies = [
-            x.strip().title() for x in buddies.split(',')
-            if x.isspace() is False and x != ''
-        ]
+        buddies = [x.strip().title() for x in buddies.split(',') if not x.isspace() and x != '']
         return buddies if len(buddies) > 1 else None
 
     @staticmethod
-    def buddies_shares(buddies) -> dict:
+    def buddies_shares(buddies) -> Dict:
         """
             Given a list of participants, one by one requests the user for amount of money
             each of participants provided.
@@ -51,16 +48,16 @@ class Interface:
 def controller() -> print:
     """
         One by one runs interface functions ensuring they all return proper data.
-        Then, with the data collected, runs the main module.
+        Then, with the data collected, runs the main script.
         Prints out the result of shares calculation.
     """
     while True:
-        buddies: list = Interface.buddies_names()
+        buddies: List = Interface.buddies_names()
         if buddies is not None:
             break
         else:
             print("\n{}\n".format(lang.alert['one participant']))
-    buddies_shares: dict = Interface.buddies_shares(buddies)
+    buddies_shares: Dict = Interface.buddies_shares(buddies)
     print(main(buddies_shares))
 
 
