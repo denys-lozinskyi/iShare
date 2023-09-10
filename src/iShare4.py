@@ -5,22 +5,22 @@ from src.languages import eng as lang
 
 class Interface:
     """
-       A set of functions responsible for receiving data from the user
+        A set of functions responsible for receiving data from the user
     """
 
     @staticmethod
-    def buddies_names() -> list:
+    def participants_names() -> list:
         """
             Receives names of participants separated with comma from the user.
               :return list: names of participants capitalized and cleared from whitespaces.
                   If qty of names received from a user is <= 1, returns None
         """
-        buddies = str(input(lang.dialogue['ask names']))
-        buddies = [x.strip().title() for x in buddies.split(',') if not x.isspace() and x != '']
-        return buddies if len(buddies) > 1 else None
+        participants = str(input(lang.dialogue['ask names']))
+        participants = [x.strip().title() for x in participants.split(',') if not x.isspace() and x != '']
+        return participants if len(participants) > 1 else None
 
     @staticmethod
-    def buddies_shares(buddies) -> Dict:
+    def participants_shares(participants) -> Dict:
         """
             Given a list of participants, one by one requests the user for amount of money
             each of participants provided.
@@ -28,21 +28,21 @@ class Interface:
                         {'shares': [{participant_1's name (str): his share (float)},
                                     {participant_2's name (str): his share (float)}]}
         """
-        buddies_shares = {'shares': []}
-        for buddy in buddies:
+        participants_shares = {'shares': []}
+        for participant in participants:
             while True:
                 try:
-                    share = float(input(lang.dialogue['ask payment'].format(buddy)))
+                    share = float(input(lang.dialogue['ask payment'].format(participant)))
                 except ValueError:
                     continue
                 if share < 0:
                     print("\n{}\n".format(lang.alert['negative share']))
                     continue
                 else:
-                    buddies_shares['shares'].append({'name': buddy, 'share': share})
+                    participants_shares['shares'].append({'name': participant, 'share': share})
                     break
-        # print(buddies_shares)
-        return buddies_shares
+        # print(participants_shares)
+        return participants_shares
 
 
 def controller() -> print:
@@ -52,55 +52,57 @@ def controller() -> print:
         Prints out the result of shares calculation.
     """
     while True:
-        buddies: List = Interface.buddies_names()
-        if buddies is not None:
+        participants: List = Interface.participants_names()
+        if participants is not None:
             break
         else:
             print("\n{}\n".format(lang.alert['one participant']))
-    buddies_shares: Dict = Interface.buddies_shares(buddies)
-    print(main(buddies_shares))
+    participants_shares: Dict = Interface.participants_shares(participants)
+    print(main(participants_shares))
 
 
 def main(data) -> str:
     """
-        Calculates and returns the result based on the arguments provided.
-          :param data: dict in a format:
-          :return: str: result of calculations
+        Computes and returns the result based on the arguments provided.
+          :param data: dict in a format: {'shares': [{participant_1's name (str): his share (float)},
+                                                     {participant_2's name (str): his share (float)}]}
+          :return: str: result of computation
+
     """
     guys_who_pay: List[Dict] = []
     guys_who_get: List[Dict] = []
     results_container: List[List] = []
-    total: float = 0
+    total: float = 0.0
 
     # calculating the total sum based on shares
-    for buddy_share in data['shares']:
-        total += buddy_share['share']
+    for participant_share in data['shares']:
+        total += participant_share['share']
     # calculating an equal share number based on total
     equal_share = total / len(data['shares'])
 
     # forming out two lists of dicts in the following format: [{'name_1': name_1, 'sum': 'his sum'},
     #                                                          {'name_2': name_2, 'sum': 'his sum'}]
-    # guys_who_pay list consists of participants' names, with a sum they have to pay to others to get equal.
+    # guys_who_pay list consists of participants' names with a sum they have to pay to others to get equal.
     # guys_who_get list consists of participants' names with a sum they are to get from others according the equal share
-    for buddy in data['shares']:
+    for participant in data['shares']:
         # if one contributed zero, he has to pay an equal share
-        if buddy['share'] == 0:
-            guys_who_pay.append({'name': buddy['name'], 'sum': equal_share})
-        # if one contributed less than an equal share, he has to pay the rest to the equal share
-        elif buddy['share'] < equal_share:
-            guys_who_pay.append({'name': buddy['name'], 'sum': equal_share - buddy['share']})
-        # if one contributed more than an equal share, he is to be paid the rest to the equal share
-        elif buddy['share'] > equal_share:
-            guys_who_get.append({'name': buddy['name'], 'sum': buddy['share'] - equal_share})
+        if participant['share'] == 0:
+            guys_who_pay.append({'name': participant['name'], 'sum': equal_share})
+        # if one contributed less than an equal share, he has to pay rest of sum to reach the equal share
+        elif participant['share'] < equal_share:
+            guys_who_pay.append({'name': participant['name'], 'sum': equal_share - participant['share']})
+        # if one contributed more than an equal share, he is to be paid rest of sum to get aligned with the equal share
+        elif participant['share'] > equal_share:
+            guys_who_get.append({'name': participant['name'], 'sum': participant['share'] - equal_share})
 
     # if in the end of forming the lists they both appeared empty, it means every participant paid an equal share
     # thus we return corresponding statement and quit.
     if len(guys_who_pay) == len(guys_who_get) == 0:
         return lang.message['total sum'].format(total) + lang.message['equal contribution'].format(equal_share)
 
-    # Otherwise we continue.
-    # We order (DESC) lists of dicts by the 'sum' key, so that participants with bigger sums be first in the lists.
-    # This aims to optimize sums that one will pay to another
+    # Otherwise we continue computation.
+    # We order (DESC) lists of dicts by the 'sum' key, so that participants with bigger sums became first in the lists.
+    # The aim is to optimize sums that one will pay to another
     guys_who_get = sorted(guys_who_get, key=lambda x: x['sum'], reverse=True)
     guys_who_pay = sorted(guys_who_pay, key=lambda x: x['sum'], reverse=True)
 
@@ -112,7 +114,7 @@ def main(data) -> str:
                 results_container.append([debtor['name'], debtor['sum'], lender['name']])
                 guys_who_pay.remove(debtor)
                 break
-            elif lender['sum'] > debtor['sum']:
+            elif lender['sum'] >= debtor['sum']:
                 results_container.append([debtor['name'], debtor['sum'], lender['name']])
                 lender['sum'] -= debtor['sum']
                 guys_who_get.append(lender)
@@ -123,6 +125,7 @@ def main(data) -> str:
                 debtor['sum'] -= lender['sum']
                 break
 
+    # rounding the sums to 2 numbers after the floating point
     results_rounded = [[x[0], round(x[1], 2), x[2]] for x in results_container]
 
     output = lang.message['total sum'].format(total) + lang.message['equal share'].format(round(equal_share, 2))
