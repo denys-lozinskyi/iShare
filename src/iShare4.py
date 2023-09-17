@@ -108,29 +108,30 @@ def main(data) -> str:
 
     # forming out output lines with data, by comparing the sum fields for every guy in the lists, and
     # manipulating with the lists as we go.
-    for lender in guys_who_get:
-        for debtor in guys_who_pay:
-            if lender['sum'] == debtor['sum']:
-                results_container.append([debtor['name'], debtor['sum'], lender['name']])
+    for creditor in guys_who_get:
+        for debtor in guys_who_pay.copy():
+            if creditor['sum'] == debtor['sum']:
+                results_container.append([debtor['name'], debtor['sum'], creditor['name']])
+                # remove debtor and switch to another creditor
                 guys_who_pay.remove(debtor)
                 break
-            elif lender['sum'] >= debtor['sum']:
-                results_container.append([debtor['name'], debtor['sum'], lender['name']])
-                lender['sum'] -= debtor['sum']
-                guys_who_get.append(lender)
+            elif creditor['sum'] > debtor['sum']:
+                results_container.append([debtor['name'], debtor['sum'], creditor['name']])
+                creditor['sum'] -= debtor['sum']
+                # remove current debtor and switch to the next one
                 guys_who_pay.remove(debtor)
-                break
-            elif lender['sum'] < debtor['sum']:
-                results_container.append([debtor['name'], lender['sum'], lender['name']])
-                debtor['sum'] -= lender['sum']
-                break
+                continue
+            elif creditor['sum'] < debtor['sum']:
+                results_container.append([debtor['name'], creditor['sum'], creditor['name']])
+                debtor['sum'] -= creditor['sum']
+                break  # switch to another creditor
 
-    # rounding the sums to 2 numbers after the floating point
+    # rounding the sums to 2 numbers after floating point
     results_rounded = [[x[0], round(x[1], 2), x[2]] for x in results_container]
 
     output = lang.message['total sum'].format(total) + lang.message['equal share'].format(round(equal_share, 2))
-    for debtor, cash, lender in results_rounded:
-        line = lang.message['personal payment'].format(debtor, cash, lender)
+    for debtor, cash, creditor in results_rounded:
+        line = lang.message['personal payment'].format(debtor, cash, creditor)
         output += "\n{}".format("".join(line))
     return output
 
