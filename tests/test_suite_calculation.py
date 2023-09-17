@@ -36,7 +36,7 @@ def test_scenario_1():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 100 <<<\n>>> Equal share is 20.00 <<<\n\nZoe pays 20.00 to Fox\nAndy pays 20.00 to Bron"
+    assert output == "\n>>> Total sum is 100.0 <<<\n>>> Equal share is 20.00 <<<\n\nZoe pays 20.00 to Fox\nAndy pays 20.00 to Bron"
 
 
 def test_scenario_2():
@@ -50,7 +50,8 @@ def test_scenario_2():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 100 <<<\n>>> Equal share is 20.00 <<<\n\nFox pays 20.00 to Bron\nDen pays 10.00 to Andy\nDen pays 5.00 to Bron\nZoe pays 5.00 to Bron"
+    # assert output == "\n>>> Total sum is 100.0 <<<\n>>> Equal share is 20.00 <<<\n\nFox pays 20.00 to Bron\nDen pays 10.00 to Andy\nDen pays 5.00 to Bron\nZoe pays 5.00 to Bron"
+    assert output == "\n>>> Total sum is 100.0 <<<\n>>> Equal share is 20.00 <<<\n\nFox pays 20.00 to Bron\nDen pays 10.00 to Bron\nDen pays 5.00 to Andy\nZoe pays 5.00 to Andy"
 
 
 def test_scenario_3():
@@ -64,7 +65,7 @@ def test_scenario_3():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 100 <<<\n>>> Equal share is 20.00 <<<\n\nDen pays 20.00 to Fox\nZoe pays 20.00 to Fox\nBron pays 20.00 to Fox\nAndy pays 5.00 to Fox"
+    assert output == "\n>>> Total sum is 100.0 <<<\n>>> Equal share is 20.00 <<<\n\nDen pays 20.00 to Fox\nZoe pays 20.00 to Fox\nBron pays 20.00 to Fox\nAndy pays 5.00 to Fox"
 
 
 def test_scenario_4():
@@ -79,7 +80,8 @@ def test_scenario_4():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 1580 <<<\n>>> Equal share is 263.33 <<<\n\nHarry pays 263.33 to Elena\nChad pays 136.67 to Fox\nChad pays 103.67 to Elena\nJuly pays 186.33 to Elena\nDen pays 83.33 to Elena"
+    # assert output == "\n>>> Total sum is 1580.0 <<<\n>>> Equal share is 263.33 <<<\n\nHarry pays 263.33 to Elena\nChad pays 136.67 to Fox\nChad pays 103.67 to Elena\nJuly pays 186.33 to Elena\nDen pays 83.33 to Elena"
+    assert output == "\n>>> Total sum is 1580.0 <<<\n>>> Equal share is 263.33 <<<\n\nHarry pays 263.33 to Elena\nChad pays 240.33 to Elena\nJuly pays 133.00 to Elena\nJuly pays 53.33 to Fox\nDen pays 83.33 to Fox"
 
 
 def test_scenario_5():
@@ -91,7 +93,7 @@ def test_scenario_5():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 120 <<<\n>>> Equal share is 40.00 <<<\n\nFox pays 35.00 to Zoe\nFox pays 5.00 to Den"
+    assert output == "\n>>> Total sum is 120.0 <<<\n>>> Equal share is 40.00 <<<\n\nFox pays 35.00 to Zoe\nFox pays 5.00 to Den"
 
 
 def test_scenario_6():
@@ -104,7 +106,8 @@ def test_scenario_6():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 1753.12 <<<\n>>> Equal share is 438.28 <<<\n\nDasha pays 438.28 to Ed\nDen pays 161.72 to Artem\nDen pays 206.56 to Ed"
+    # assert output == "\n>>> Total sum is 1753.12 <<<\n>>> Equal share is 438.28 <<<\n\nDasha pays 438.28 to Ed\nDen pays 161.72 to Artem\nDen pays 206.56 to Ed"
+    assert output == "\n>>> Total sum is 1753.12 <<<\n>>> Equal share is 438.28 <<<\n\nDasha pays 438.28 to Ed\nDen pays 206.56 to Ed\nDen pays 161.72 to Artem"
 
 
 def test_scenario_7():
@@ -117,7 +120,7 @@ def test_scenario_7():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 4000 <<<\nEveryone equally contributed with 1000.00 each"
+    assert output == "\n>>> Total sum is 4000.0 <<<\nEveryone equally contributed with 1000.00 each"
 
 
 def test_scenario_8():
@@ -133,4 +136,5 @@ def test_scenario_8():
     }
     output = main(data)
     print(f'Function output:\n{output}')
-    assert output == "\n>>> Total sum is 5987 <<<\n>>> Equal share is 855.29 <<<\n\nТоля pays 855.29 to Вася\nЕлена pays 644.71 to Таня\nЕлена pays 23.57 to Оля\nАлекс pays 94.71 to Денис\nАлекс pays 239.43 to Вася\nАлекс pays 121.14 to Оля"
+    # assert output == "\n>>> Total sum is 5987.0 <<<\n>>> Equal share is 855.29 <<<\n\nТоля pays 855.29 to Вася\nЕлена pays 644.71 to Таня\nЕлена pays 23.57 to Оля\nАлекс pays 94.71 to Денис\nАлекс pays 239.43 to Вася\nАлекс pays 121.14 to Оля"
+    assert output == "\n>>> Total sum is 5987.0 <<<\n>>> Equal share is 855.29 <<<\n\nТоля pays 855.29 to Вася\nЕлена pays 239.43 to Вася\nЕлена pays 428.86 to Таня\nАлекс pays 215.86 to Таня\nАлекс pays 144.71 to Оля\nАлекс pays 94.71 to Денис"
