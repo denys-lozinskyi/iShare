@@ -63,7 +63,7 @@ def controller() -> print:
 
 def main(data) -> str:
     """
-        Computes and returns the result based on the arguments provided.
+        Computes and returns the result based on the data provided.
           :param data: dict in a format: {'shares': [{participant_1's name (str): his share (float)},
                                                      {participant_2's name (str): his share (float)}]}
           :return: str: result of computation
@@ -83,7 +83,7 @@ def main(data) -> str:
     # forming out two lists of dicts in the following format: [{'name_1': name_1, 'sum': 'his sum'},
     #                                                          {'name_2': name_2, 'sum': 'his sum'}]
     # guys_who_pay list consists of participants' names with a sum they have to pay to others to get equal.
-    # guys_who_get list consists of participants' names with a sum they are to get from others according the equal share
+    # guys_who_get list consists of participants' names with a sum they are to get paid to become equal.
     for participant in data['shares']:
         # if one contributed zero, he has to pay an equal share
         if participant['share'] == 0:
@@ -94,9 +94,13 @@ def main(data) -> str:
         # if one contributed more than an equal share, he is to be paid rest of sum to get aligned with the equal share
         elif participant['share'] > equal_share:
             guys_who_get.append({'name': participant['name'], 'sum': participant['share'] - equal_share})
+        # if one contributed the equal share, he's not appended into either of the lists
+        else:
+            pass
 
-    # if in the end of forming the lists they both appeared empty, it means every participant paid an equal share
-    # thus we return corresponding statement and quit.
+    # Thus, if in the end of forming the lists they both appeared empty,
+    # it means every participant paid an equal share,
+    # so we return a respective statement on equal contribution and quit.
     if len(guys_who_pay) == len(guys_who_get) == 0:
         return lang.message['total sum'].format(total) + lang.message['equal contribution'].format(equal_share)
 
@@ -106,13 +110,16 @@ def main(data) -> str:
     guys_who_get = sorted(guys_who_get, key=lambda x: x['sum'], reverse=True)
     guys_who_pay = sorted(guys_who_pay, key=lambda x: x['sum'], reverse=True)
 
-    # forming out output lines with data, by comparing the sum fields for every guy in the lists, and
-    # manipulating with the lists as we go.
+    # Now we are satisfying one creditor after another, by moving costs from debtors in their favour.
+    # Adjacently, we form up lines for output saying who owns money and to whom.
+    # In order to be able to remove debtors from the list, we iterate over a copy of the guys_who_pay list,
+    # but remove debtors from the original one. On every iteration of the outer loop (creditors) the copy
+    # is created new based on the updated original, which allows keep track of available debtors on every iteration.
     for creditor in guys_who_get:
         for debtor in guys_who_pay.copy():
             if creditor['sum'] == debtor['sum']:
                 results_container.append([debtor['name'], debtor['sum'], creditor['name']])
-                # remove debtor and switch to another creditor
+                # remove current debtor and take another creditor
                 guys_who_pay.remove(debtor)
                 break
             elif creditor['sum'] > debtor['sum']:
@@ -124,7 +131,7 @@ def main(data) -> str:
             elif creditor['sum'] < debtor['sum']:
                 results_container.append([debtor['name'], creditor['sum'], creditor['name']])
                 debtor['sum'] -= creditor['sum']
-                break  # switch to another creditor
+                break  # take another creditor. Leave current debtor for other creditors.
 
     # rounding the sums to 2 numbers after floating point
     results_rounded = [[x[0], round(x[1], 2), x[2]] for x in results_container]
